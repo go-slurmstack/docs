@@ -1,0 +1,64 @@
+name: docs
+
+# Builds the documentation on every pull request and deploys it to GitHub Pages
+# (Actions deployment) on every push to main. It is served at
+# https://go-slurmstack.github.io/docs/ because this repository is named "docs"
+# in the organisation that owns go-slurmstack.github.io.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+env:
+  HUGO_VERSION: "0.167.0"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # themes/hextra is the tannevaled/hextra fork, pinned to a release tag.
+          submodules: recursive
+          # The whole history: each page's date comes from git.
+          fetch-depth: 0
+
+      - uses: peaceiris/actions-hugo@v3
+        with:
+          hugo-version: ${{ env.HUGO_VERSION }}
+          extended: true
+
+      # --panicOnWarning: a broken relref or a deprecated setting fails the
+      # build instead of scrolling by.
+      - name: Build
+        env:
+          HUGO_ENVIRONMENT: production
+        run: hugo --gc --minify --panicOnWarning --printPathWarnings
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: public
+
+  deploy:
+    # A pull request builds; only main publishes.
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

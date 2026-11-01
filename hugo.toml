@@ -1,0 +1,65 @@
+baseURL = "https://go-slurmstack.github.io/docs/"
+title = "slurmstack"
+locale = "en"
+enableGitInfo = true
+
+# The theme is the tannevaled/hextra fork, as a git submodule pinned at a
+# tag in themes/hextra. The fork's go.mod still declares
+# github.com/imfing/hextra, so it cannot be required by its own path; a
+# local replacement is the one way that mounts the fork's files (checked
+# with `hugo config mounts`) rather than upstream's.
+[module]
+  replacements = "github.com/imfing/hextra -> hextra"
+  [module.hugoVersion]
+    min = "0.146.0"
+  [[module.imports]]
+    path = "github.com/imfing/hextra"
+
+[markup.goldmark.renderer]
+  unsafe = true
+
+[markup.highlight]
+  noClasses = false
+
+[[menu.main]]
+  name = "Documentation"
+  pageRef = "/docs"
+  weight = 1
+
+[[menu.main]]
+  name = "Search"
+  weight = 5
+  [menu.main.params]
+    type = "search"
+
+[[menu.main]]
+  name = "Home"
+  weight = 6
+  url = "https://go-slurmstack.github.io/"
+
+[params]
+  description = "A Slurm cluster on OpenStack from one Go binary: Terraform for the infrastructure, go-ansible's engine for munge, NFS and Slurm."
+
+  [params.navbar]
+    displayTitle = true
+    displayLogo = true
+    [params.navbar.logo]
+      path = "img/logo.svg"
+      width = 28
+      height = 28
+
+  [params.theme]
+    default = "system"
+    displayToggle = true
+    darkreaderLock = true
+
+  [params.search]
+    enable = true
+    type = "flexsearch"
+    [params.search.flexsearch]
+      index = "content"
+      tokenize = "forward"
+
+  [params.footer]
+    displayCopyright = true
+    displayPoweredBy = false
